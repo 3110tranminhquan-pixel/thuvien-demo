@@ -1,0 +1,3342 @@
+{
+  "info": {
+    "_postman_id": "684d2e61-a778-4084-bb16-8ca7e2acffc0",
+    "name": "Thư viện – kiểm thử API",
+    "description": "Chạy trên dữ liệu vừa nạp lại (thuvien.sql + du_lieu_demo.sql). Chạy lần lượt từ trên xuống bằng Run collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Xác thực và phân quyền",
+      "item": [
+        {
+          "name": "Đăng nhập thủ thư (TC-01)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Vai trò THU_THU\", () => pm.expect(j.nguoiDung.vaiTro).to.eql(\"THU_THU\"));",
+                  "pm.collectionVariables.set(\"tokenThuThu\", j.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"thuthu01\",\n  \"matKhau\": \"Thuvien@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Đăng nhập sai mật khẩu (TC-02)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 401\", () => pm.response.to.have.status(401));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Thông báo chung, không nói sai phần nào\", () => pm.expect(j.message).to.eql(\"Tên đăng nhập hoặc mật khẩu không đúng\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"thuthu02\",\n  \"matKhau\": \"sai-mat-khau\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Đăng nhập bạn đọc BD000001",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"tokenBanDoc\", j.accessToken);",
+                  "pm.test(\"Token có mã bạn đọc\", () => pm.expect(j.nguoiDung.banDocId).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"BD000001\",\n  \"matKhau\": \"Thuvien@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Đăng nhập quản trị",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"tokenAdmin\", j.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"admin\",\n  \"matKhau\": \"Thuvien@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Bạn đọc gọi API thêm đầu sách (TC-06)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/sach",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isbn\": \"9786040000019\",\n  \"nhanDe\": \"Thử quyền\",\n  \"giaBia\": 10000,\n  \"loaiTaiLieu\": \"GIAO_TRINH\",\n  \"theLoaiId\": 1,\n  \"nxbId\": 1,\n  \"dsTacGiaId\": [\n    1\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Không gửi token gọi API tạo phiếu mượn (TC-07)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 1,\n  \"dsMaVach\": [\n    \"GT00000001\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Bạn đọc xem lịch sử người khác (TC-19)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/2/lich-su",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "2",
+                "lich-su"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Tra cứu",
+      "item": [
+        {
+          "name": "Tìm không phân biệt hoa thường (TC-08)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Có Cơ sở dữ liệu\", () => pm.expect(j.dsKetQua.map(s => s.nhanDe)).to.include(\"Cơ sở dữ liệu\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sach?tuKhoa=CƠ SỞ dữ liệu",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach"
+              ],
+              "query": [
+                {
+                  "key": "tuKhoa",
+                  "value": "CƠ SỞ dữ liệu"
+                }
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Tìm từ khóa không có (TC-09)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Không có kết quả\", () => pm.expect(j.tongSo).to.eql(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sach?tuKhoa=xyz123",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach"
+              ],
+              "query": [
+                {
+                  "key": "tuKhoa",
+                  "value": "xyz123"
+                }
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Thử SQL Injection (TC-76)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Coi như chuỗi tìm kiếm bình thường\", () => pm.expect(j.tongSo).to.eql(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sach?tuKhoa=' OR '1'='1",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach"
+              ],
+              "query": [
+                {
+                  "key": "tuKhoa",
+                  "value": "' OR '1'='1"
+                }
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Chi tiết đầu sách đã hết bản (TC-10)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Không còn bản sẵn sàng\", () => pm.expect(j.soSanSang).to.eql(0));",
+                  "pm.test(\"Có vị trí kệ từng bản\", () => pm.expect(j.dsBanSach[0].viTriKe).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sach/5",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach",
+                "5"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Đo thời gian tìm kiếm (TC-72)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Phản hồi dưới 2 giây\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sach?tuKhoa=mạng máy",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach"
+              ],
+              "query": [
+                {
+                  "key": "tuKhoa",
+                  "value": "mạng máy"
+                }
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Quản lý tài liệu",
+      "item": [
+        {
+          "name": "Thêm đầu sách ISBN sai (TC-12)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo ISBN không hợp lệ\", () => pm.expect(j.message).to.include(\"ISBN\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/sach",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isbn\": \"9786040000018\",\n  \"nhanDe\": \"Sách thử ISBN sai\",\n  \"namXb\": 2024,\n  \"giaBia\": 50000,\n  \"loaiTaiLieu\": \"GIAO_TRINH\",\n  \"theLoaiId\": 1,\n  \"nxbId\": 1,\n  \"dsTacGiaId\": [\n    1\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Thêm đầu sách hợp lệ (TC-11)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"dauSachMoiId\", j.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/sach",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isbn\": \"9786040000019\",\n  \"nhanDe\": \"Kiểm thử phần mềm\",\n  \"namXb\": 2024,\n  \"giaBia\": 50000,\n  \"loaiTaiLieu\": \"GIAO_TRINH\",\n  \"theLoaiId\": 1,\n  \"nxbId\": 1,\n  \"dsTacGiaId\": [\n    1\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Thêm 3 bản sách, tự sinh mã vạch (TC-14)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Sinh 3 mã khác nhau\", () => pm.expect(new Set(j.map(b => b.maVach)).size).to.eql(3));",
+                  "pm.test(\"Đúng định dạng 2 chữ + 8 số\", () => j.forEach(b => pm.expect(b.maVach).to.match(/^[A-Z]{2}[0-9]{8}$/)));",
+                  "pm.test(\"Đều Sẵn sàng\", () => j.forEach(b => pm.expect(b.trangThai).to.eql(\"SAN_SANG\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/sach/{{dauSachMoiId}}/ban-sach",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach",
+                "{{dauSachMoiId}}",
+                "ban-sach"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soLuong\": 3,\n  \"viTriKe\": \"K03-T1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Thêm thể loại trùng tên (TC-13)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/danh-muc/the-loai",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "danh-muc",
+                "the-loai"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ten\": \"Tin học\",\n  \"phu\": \"005\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Bạn đọc",
+      "item": [
+        {
+          "name": "Quét thẻ BD000001 (đang mượn 3/5)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Được mượn\", () => pm.expect(j.duocMuon).to.eql(true));",
+                  "pm.test(\"Đang mượn 3\", () => pm.expect(j.soDangMuon).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/the/BD000001",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "the",
+                "BD000001"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Quét thẻ đang bị khóa BD000011 (TC-26)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Không được mượn, có lý do\", () => { pm.expect(j.duocMuon).to.eql(false); pm.expect(j.lyDoKhongDuocMuon).to.include(\"khóa\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/the/BD000011",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "the",
+                "BD000011"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Khóa thẻ để trống lý do (TC-18)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/6/khoa",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "6",
+                "khoa"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lyDo\": \"\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Mượn sách",
+      "item": [
+        {
+          "name": "Sách tham khảo chỉ đọc tại chỗ (TC-29)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo đọc tại chỗ\", () => pm.expect(j.code).to.eql(\"CHI_DOC_TAI_CHO\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon/kiem-tra-sach",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon",
+                "kiem-tra-sach"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 6,\n  \"maVach\": \"TK00000001\",\n  \"dsMaVachDaQuet\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "Đang mượn 3, tạo phiếu 3 cuốn (TC-25)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Vượt hạn mức\", () => pm.expect(j.code).to.eql(\"VUOT_HAN_MUC\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 1,\n  \"dsMaVach\": [\n    \"GT00000001\",\n    \"GT00000004\",\n    \"GT00000024\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Kiểm tra không cuốn nào bị lưu (TC-25)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"GT00000001 vẫn Sẵn sàng\", () => pm.expect(j.dsBanSach.find(b => b.maVach === \"GT00000001\").trangThai).to.eql(\"SAN_SANG\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sach/1",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "sach",
+                "1"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Bạn đọc có sách quá hạn (TC-27)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo đang có sách quá hạn\", () => pm.expect(j.message).to.include(\"quá hạn\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 2,\n  \"dsMaVach\": [\n    \"GT00000024\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Bạn đọc nợ phạt 10.000 đ (TC-28)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo nợ phạt\", () => pm.expect(j.message).to.include(\"phiếu phạt\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 14,\n  \"dsMaVach\": [\n    \"GT00000024\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Sinh viên đang mượn 5, mượn thêm (TC-22)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Đã mượn tối đa 5 cuốn\", () => pm.expect(j.message).to.eql(\"Bạn đọc đã mượn tối đa 5 cuốn\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 8,\n  \"dsMaVach\": [\n    \"GT00000024\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Giảng viên đang mượn 10, mượn thêm (TC-24)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Đã mượn tối đa 10 cuốn\", () => pm.expect(j.message).to.eql(\"Bạn đọc đã mượn tối đa 10 cuốn\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 10,\n  \"dsMaVach\": [\n    \"GT00000024\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Sinh viên mượn 1 cuốn, hạn 14 ngày (TC-20, TC-73)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "const han = new Date(); han.setDate(han.getDate() + 14);",
+                  "pm.test(\"Hạn trả = hôm nay + 14 ngày\", () => pm.expect(j.dsChiTiet[0].hanTra).to.eql(han.toLocaleDateString(\"sv-SE\")));",
+                  "pm.test(\"Lưu xong dưới 1 giây\", () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 6,\n  \"dsMaVach\": [\n    \"GT00000024\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Sinh viên đang mượn 4, mượn thêm 1 (TC-21)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Tạo 1 dòng\", () => pm.expect(j.dsChiTiet.length).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 7,\n  \"dsMaVach\": [\n    \"GT00000058\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Giảng viên đang mượn 9, mượn thêm 1 (TC-23)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "const han = new Date(); han.setDate(han.getDate() + 30);",
+                  "pm.test(\"Hạn trả = hôm nay + 30 ngày\", () => pm.expect(j.dsChiTiet[0].hanTra).to.eql(han.toLocaleDateString(\"sv-SE\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"banDocId\": 9,\n  \"dsMaVach\": [\n    \"GT00000011\"\n  ]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Trả sách",
+      "item": [
+        {
+          "name": "Xem trước: trễ 1 ngày",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Trễ 1 ngày, tạm tính 5.000 đ\", () => { pm.expect(j.soNgayTre).to.eql(1); pm.expect(j.phatTreTamTinh).to.eql(5000); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra/xem-truoc/GT00000043",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra",
+                "xem-truoc",
+                "GT00000043"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Chưa chọn tình trạng (TC-43)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"GT00000043\",\n  \"tinhTrang\": \"\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Trả trễ 1 ngày (TC-35)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Phạt 5.000 đ\", () => pm.expect(j.tienPhatTre).to.eql(5000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"GT00000043\",\n  \"tinhTrang\": \"BINH_THUONG\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Trả trễ 10 ngày (TC-36)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Phạt 50.000 đ\", () => pm.expect(j.tienPhatTre).to.eql(50000));",
+                  "pm.test(\"Thẻ vẫn hoạt động\", () => pm.expect(j.trangThaiThe).to.eql(\"HOAT_DONG\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"GT00000053\",\n  \"tinhTrang\": \"BINH_THUONG\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Trả trễ 11 ngày (TC-37)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Phạt 55.000 đ\", () => pm.expect(j.tienPhatTre).to.eql(55000));",
+                  "pm.test(\"Thẻ bị khóa\", () => pm.expect(j.trangThaiThe).to.eql(\"BI_KHOA\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"GT00000050\",\n  \"tinhTrang\": \"BINH_THUONG\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Giá 40.000 đ trễ 16 ngày (TC-38)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Phạt 80.000 đ (chạm trần)\", () => pm.expect(j.tienPhatTre).to.eql(80000));",
+                  "pm.test(\"Thẻ bị khóa\", () => pm.expect(j.trangThaiThe).to.eql(\"BI_KHOA\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"GT00000005\",\n  \"tinhTrang\": \"BINH_THUONG\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Giá 40.000 đ trễ 17 ngày (TC-39)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Phạt 80.000 đ, không phải 85.000 đ\", () => pm.expect(j.tienPhatTre).to.eql(80000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"GT00000057\",\n  \"tinhTrang\": \"BINH_THUONG\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Giá 80.000 đ hỏng nhẹ (TC-40)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Phạt hỏng 24.000 đ\", () => pm.expect(j.tienPhatHong).to.eql(24000));",
+                  "pm.test(\"Bản sách Sẵn sàng\", () => pm.expect(j.trangThaiMoi).to.eql(\"Sẵn sàng\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"GT00000002\",\n  \"tinhTrang\": \"HONG_NHE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Giá 80.000 đ hỏng nặng (TC-41)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Phạt hỏng 80.000 đ\", () => pm.expect(j.tienPhatHong).to.eql(80000));",
+                  "pm.test(\"Bản sách Đang sửa\", () => pm.expect(j.trangThaiMoi).to.eql(\"Đang sửa\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"GT00000003\",\n  \"tinhTrang\": \"HONG_NANG\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Trả đúng ngày hạn (TC-34)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Không phạt\", () => { pm.expect(j.tienPhatTre).to.eql(0); pm.expect(j.tienPhatHong).to.eql(0); });",
+                  "pm.test(\"Bản sách Sẵn sàng\", () => pm.expect(j.trangThaiMoi).to.eql(\"Sẵn sàng\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maVach\": \"ST00000008\",\n  \"tinhTrang\": \"BINH_THUONG\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Gia hạn",
+      "item": [
+        {
+          "name": "Lấy lượt mượn của BD000001",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"ctMang\", j.find(m => m.maVach === \"GT00000009\").chiTietId);",
+                  "pm.collectionVariables.set(\"ctKinhTeVanTai\", j.find(m => m.maVach === \"ST00000001\").chiTietId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/toi/dang-muon",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "toi",
+                "dang-muon"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Gia hạn hợp lệ (TC-44)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const han = new Date(); han.setDate(han.getDate() + 9);",
+                  "pm.test(\"Hạn mới = hạn cũ + 7\", () => pm.expect(j.hanTra).to.eql(han.toLocaleDateString(\"sv-SE\")));",
+                  "pm.test(\"Đã gia hạn 1 lần\", () => pm.expect(j.soLanGiaHan).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/gia-han/{{ctMang}}",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "gia-han",
+                "{{ctMang}}"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Có người đặt trước (TC-45)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo có người đặt trước\", () => pm.expect(j.message).to.eql(\"Sách đang có người đặt trước, không thể gia hạn\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/gia-han/{{ctKinhTeVanTai}}",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "gia-han",
+                "{{ctKinhTeVanTai}}"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Lấy lượt mượn của BD000007",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"ctToanRoiRac\", j.dangMuon.find(m => m.maVach === \"GT00000019\").chiTietId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/7/lich-su",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "7",
+                "lich-su"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Gia hạn sách của người khác (TC-50)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/gia-han/{{ctToanRoiRac}}",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "gia-han",
+                "{{ctToanRoiRac}}"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Đã gia hạn 1 lần (TC-46)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo đã gia hạn tối đa\", () => pm.expect(j.message).to.eql(\"Đã gia hạn tối đa 1 lần\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/gia-han/{{ctToanRoiRac}}",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "gia-han",
+                "{{ctToanRoiRac}}"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Lấy lượt mượn của BD000008",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"ctHeDieuHanh\", j.dangMuon.find(m => m.maVach === \"ST00000003\").chiTietId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/8/lich-su",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "8",
+                "lich-su"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Đã gia hạn 1 lần và có người đặt (TC-47)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo đã gia hạn tối đa\", () => pm.expect(j.message).to.eql(\"Đã gia hạn tối đa 1 lần\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/gia-han/{{ctHeDieuHanh}}",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "gia-han",
+                "{{ctHeDieuHanh}}"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Lấy lượt mượn của BD000002",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"ctQuaHan\", j.dangMuon[0].chiTietId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/2/lich-su",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "2",
+                "lich-su"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Sách đã quá hạn (TC-48)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo quá hạn\", () => pm.expect(j.message).to.eql(\"Sách đã quá hạn, vui lòng mang sách đến trả\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/gia-han/{{ctQuaHan}}",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "gia-han",
+                "{{ctQuaHan}}"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Lấy lượt mượn của BD000011",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"ctTheKhoa\", j.dangMuon[0].chiTietId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/11/lich-su",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "11",
+                "lich-su"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Thẻ bị khóa (TC-49)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo thẻ bị khóa kèm lý do\", () => pm.expect(j.message).to.include(\"Thẻ đang bị khóa\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/gia-han/{{ctTheKhoa}}",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "gia-han",
+                "{{ctTheKhoa}}"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Lấy lượt mượn của BD000009",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"ctGiangVien\", j.dangMuon.find(m => m.maVach === \"GT00000016\").chiTietId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/9/lich-su",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "9",
+                "lich-su"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Giảng viên gia hạn 14 ngày (TC-51)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const han = new Date(); han.setDate(han.getDate() + 16);",
+                  "pm.test(\"Hạn mới = hạn cũ + 14\", () => pm.expect(j.hanTra).to.eql(han.toLocaleDateString(\"sv-SE\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/gia-han/{{ctGiangVien}}",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "gia-han",
+                "{{ctGiangVien}}"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Đặt trước",
+      "item": [
+        {
+          "name": "Đăng nhập BD000006",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"tokenBanDoc6\", pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"BD000006\",\n  \"matKhau\": \"Thuvien@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Đặt trước sách còn bản (TC-52)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo sách hiện đã có\", () => pm.expect(j.code).to.eql(\"CON_SACH\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc6}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/dat-truoc",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "dat-truoc"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dauSachId\": 13\n}"
+            }
+          }
+        },
+        {
+          "name": "Đặt trước sách đang có 1 người chờ (TC-53)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Đứng thứ 2\", () => pm.expect(j.thuTu).to.eql(2));",
+                  "pm.test(\"Đang chờ\", () => pm.expect(j.trangThai).to.eql(\"DANG_CHO\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc6}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/dat-truoc",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "dat-truoc"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dauSachId\": 9\n}"
+            }
+          }
+        },
+        {
+          "name": "Đăng nhập BD000013",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"tokenBanDoc13\", pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"BD000013\",\n  \"matKhau\": \"Thuvien@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Đặt đầu sách thứ tư (TC-54)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 422\", () => pm.response.to.have.status(422));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Báo giới hạn 3 đầu sách\", () => pm.expect(j.code).to.eql(\"VUOT_SO_DAT_TRUOC\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenBanDoc13}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/dat-truoc",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "dat-truoc"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dauSachId\": 5\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Vi phạm, khóa thẻ, tác vụ định kỳ",
+      "item": [
+        {
+          "name": "Tìm phiếu nợ của BD000014",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"phieu14\", j[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/phat?trangThai=CHUA_THANH_TOAN&tuKhoa=BD000014",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "phat"
+              ],
+              "query": [
+                {
+                  "key": "trangThai",
+                  "value": "CHUA_THANH_TOAN"
+                },
+                {
+                  "key": "tuKhoa",
+                  "value": "BD000014"
+                }
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Thu tiền phạt (TC-61)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Đã thanh toán, có ngày thu và người thu\", () => { pm.expect(j.trangThai).to.eql(\"DA_THANH_TOAN\"); pm.expect(j.ngayThu).to.be.a(\"string\"); pm.expect(j.nguoiThu).to.eql(\"thuthu01\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/phat/{{phieu14}}/thanh-toan",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "phat",
+                "{{phieu14}}",
+                "thanh-toan"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Chạy tác vụ định kỳ",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/quan-tri/chay-tac-vu",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "quan-tri",
+                "chay-tac-vu"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Quá hạn đúng 30 ngày vẫn hoạt động (TC-62)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Thẻ Hoạt động\", () => pm.expect(pm.response.json().trangThai).to.eql(\"HOAT_DONG\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/the/BD000021",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "the",
+                "BD000021"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Quá hạn 31 ngày bị khóa (TC-63)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Thẻ Bị khóa\", () => pm.expect(j.trangThai).to.eql(\"BI_KHOA\"));",
+                  "pm.test(\"Lý do quá hạn\", () => pm.expect(j.lyDoKhoa).to.include(\"quá hạn\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/the/BD000022",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "the",
+                "BD000022"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Nợ đúng 50.000 đ vẫn hoạt động",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Thẻ Hoạt động\", () => pm.expect(pm.response.json().trangThai).to.eql(\"HOAT_DONG\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/the/BD000023",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "the",
+                "BD000023"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Nợ 55.000 đ bị khóa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Thẻ Bị khóa\", () => pm.expect(pm.response.json().trangThai).to.eql(\"BI_KHOA\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/the/BD000024",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "the",
+                "BD000024"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Tìm phiếu nợ của BD000024",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"phieu24\", pm.response.json()[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/phat?trangThai=CHUA_THANH_TOAN&tuKhoa=BD000024",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "phat"
+              ],
+              "query": [
+                {
+                  "key": "trangThai",
+                  "value": "CHUA_THANH_TOAN"
+                },
+                {
+                  "key": "tuKhoa",
+                  "value": "BD000024"
+                }
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Thu đủ tiền -> mở thẻ ngay (TC-64)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/phat/{{phieu24}}/thanh-toan",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "phat",
+                "{{phieu24}}",
+                "thanh-toan"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Kiểm tra thẻ BD000024 đã mở (TC-64)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Thẻ Hoạt động\", () => pm.expect(pm.response.json().trangThai).to.eql(\"HOAT_DONG\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/ban-doc/the/BD000024",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "ban-doc",
+                "the",
+                "BD000024"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Danh sách quá hạn (TC-68)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Có dữ liệu\", () => pm.expect(pm.response.json().length).to.be.above(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/bao-cao/qua-han",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "bao-cao",
+                "qua-han"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Quản trị",
+      "item": [
+        {
+          "name": "Đổi phạt mỗi ngày thành 6.000 đ (TC-69)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/quan-tri/tham-so/PHAT_TRE_MOI_NGAY",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "quan-tri",
+                "tham-so",
+                "PHAT_TRE_MOI_NGAY"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"giaTri\": \"6000\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Tiền phạt tính theo tham số mới (TC-69)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Trễ 8 ngày x 6.000 = 48.000 đ\", () => pm.expect(j.phatTreTamTinh).to.eql(48000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tra/xem-truoc/GT00000040",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "tra",
+                "xem-truoc",
+                "GT00000040"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Trả lại mức 5.000 đ",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/quan-tri/tham-so/PHAT_TRE_MOI_NGAY",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "quan-tri",
+                "tham-so",
+                "PHAT_TRE_MOI_NGAY"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"giaTri\": \"5000\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Nhật ký có ghi thao tác sửa tham số (TC-69)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Có dòng SUA_THAM_SO\", () => pm.expect(pm.response.json().some(n => n.hanhDong === \"SUA_THAM_SO\")).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/quan-tri/nhat-ky",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "quan-tri",
+                "nhat-ky"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Tạo tài khoản thủ thư mới (TC-70)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/quan-tri/tai-khoan",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "quan-tri",
+                "tai-khoan"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"thuthu03\",\n  \"matKhau\": \"Thuvien@123\",\n  \"vaiTroId\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Đăng nhập tài khoản mới (TC-70)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"tokenThuThu3\", pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"thuthu03\",\n  \"matKhau\": \"Thuvien@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Thủ thư mới không vào được khu quản trị (TC-70)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenThuThu3}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/quan-tri/tai-khoan",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "quan-tri",
+                "tai-khoan"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Đăng xuất",
+      "item": [
+        {
+          "name": "Đăng nhập để lấy refresh token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 200\", () => pm.response.to.have.status(200));",
+                  "const c = pm.response.headers.get(\"Set-Cookie\") || \"\";",
+                  "pm.collectionVariables.set(\"refreshCu\", c.split(\";\")[0].replace(\"refresh_token=\", \"\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDangNhap\": \"thuthu02\",\n  \"matKhau\": \"Thuvien@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Đăng xuất",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.request.headers.upsert({ key: \"Cookie\", value: \"refresh_token=\" + pm.collectionVariables.get(\"refreshCu\") });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/logout",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "name": "Dùng lại refresh token cũ (TC-05)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.request.headers.upsert({ key: \"Cookie\", value: \"refresh_token=\" + pm.collectionVariables.get(\"refreshCu\") });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mã 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/refresh",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ],
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}

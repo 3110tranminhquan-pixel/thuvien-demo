@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    # Có thể ghi đè bằng biến môi trường SPRING_DATASOURCE_URL, _USERNAME, _PASSWORD
+    url: jdbc:postgresql://localhost:5432/thuvien
+    username: postgres
+    password: "123456"   # đổi thành mật khẩu user postgres của máy bạn
+  jpa:
+    # Bảng đã tạo sẵn bằng script SQL, Hibernate không tự sửa cấu trúc bảng
+    hibernate:
+      ddl-auto: none
+    # Giữ phiên làm việc với CSDL trong suốt một request (mặc định của Spring Boot)
+    open-in-view: true
+    show-sql: false
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+    serialization:
+      write-dates-as-timestamps: false
+  mail:
+    # MailHog: SMTP cổng 1025, xem thư ở http://localhost:8025
+    host: localhost
+    port: 1025
+    properties:
+      mail.smtp.connectiontimeout: 3000
+      mail.smtp.timeout: 3000
+      mail.smtp.writetimeout: 3000
+
+thuvien:
+  jwt:
+    # Chuỗi bí mật tối thiểu 32 ký tự, khi triển khai thật thì đặt qua biến môi trường JWT_SECRET
+    secret: ${JWT_SECRET:doi-chuoi-nay-thanh-chuoi-bi-mat-dai-it-nhat-32-ky-tu}
+    access-phut: 30
+    refresh-ngay: 7
+  # Khi chạy trên HTTPS thật thì đổi thành true
+  cookie-secure: false
+  email-gui: thuvien@truong.edu.vn
